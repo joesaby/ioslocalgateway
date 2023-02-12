@@ -1,3 +1,6 @@
+import socket
+
+
 def lgw_template_with_pbx(outbound_proxy, ccm_ip):
     print("The outbound proxy is: " + outbound_proxy)
     print("The CUCM IP address is: " + ccm_ip)
@@ -7,30 +10,46 @@ def lgw_template_without_pbx(outbound_proxy):
     print("The outbound proxy is: " + outbound_proxy)
 
 
+def validate_dialpeer(dial_peer_to_pbx):
+    try:
+        if int(dial_peer_to_pbx) < 100 or int(dial_peer_to_pbx) > 999:
+            print("Invalid dial-peer to pbx. Please enter a value between 100-999")
+            exit()
+    except ValueError:
+        print("Invalid dial-peer to pbx. Please enter a value between 100-999")
+        exit()
+
 # read user input a value for "dial-peer to pbx". This value will be used to create the dial-peer
 # user may enter 0 for dial-peer to pbx and the script will create a dial-peer with a generated value
 # user may enter a value for dial-peer to pbx and the script will create a dial-peer with the value entered
 def get_dial_peer_to_pbx():
-    dial_peer_to_pbx = input("Enter the dial-peer to pbx: ")
+    # read user input for dial-peer to pbx
+    # in the user input, inform that if they enter 0 then the script will generate a value for dial-peer to pbx
+    dial_peer_to_pbx = input("Enter the dial-peer to pbx (0 for auto): ")
+
+    # if user enters a value that is not an integer or within the range of 100-999 then prompt return an error message
+    validate_dialpeer(dial_peer_to_pbx)
     if dial_peer_to_pbx == "0":
         dial_peer_to_pbx = "200"
     return dial_peer_to_pbx
-
-
-# read fqdn for the local gateway if certificate-based local gateway is selected
-def get_fqdn():
-    fqdn = input("Enter the fqdn for the local gateway: ")
-    return fqdn
 
 
 # read user input a value for "dial-peer to webex calling". This value will be used to create the dial-peer
 # user may enter 0 for dial-peer to webex calling and the script will create a dial-peer with a generated value
 # user may enter a value for dial-peer to webex calling and the script will create a dial-peer with the value entered
 def get_dial_peer_to_webex_calling():
-    dial_peer_to_webex_calling = input("Enter the dial-peer to webex calling: ")
+    dial_peer_to_webex_calling = input("Enter the dial-peer to pbx (0 for auto): ")
+    # if user enters a value that is not an integer or within the range of 100-999 then prompt return an error message
+    validate_dialpeer(dial_peer_to_webex_calling)
     if dial_peer_to_webex_calling == "0":
         dial_peer_to_webex_calling = "100"
     return dial_peer_to_webex_calling
+
+
+# read fqdn for the local gateway if certificate-based local gateway is selected
+def get_fqdn():
+    fqdn = input("Enter the fqdn for the local gateway: ")
+    return fqdn
 
 
 # read user input for registration-based vs certificate-based local gateway
@@ -59,6 +78,12 @@ def read_user_input():
     option = input("Do you want to enter the CUCM IP address? (yes/no): ")
     if option == "yes":
         ccm_ip = input("Enter the CUCM IP address: ")
+        # sanitize the ip address entered and throw an error if the ip address is invalid
+        try:
+            socket.inet_aton(ccm_ip)
+        except socket.error:
+            print("Invalid IP address")
+            exit()
         lgw_template_with_pbx(outbound_proxy, ccm_ip)
     else:
         lgw_template_without_pbx(outbound_proxy)
