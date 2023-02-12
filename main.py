@@ -1,13 +1,31 @@
 import socket
 
 
-def lgw_template_with_pbx(outbound_proxy, ccm_ip):
-    print("The outbound proxy is: " + outbound_proxy)
-    print("The CUCM IP address is: " + ccm_ip)
+def lgw_template_with_pbx(ccm_ip):
+    print("inside lgw_template_with_pbx()")
 
 
-def lgw_template_without_pbx(outbound_proxy):
-    print("The outbound proxy is: " + outbound_proxy)
+def lgw_template_without_pbx():
+    print("inside lgw_template_without_pbx()")
+
+
+def get_registration_mode_config():
+    line_port = input("Enter the line port: ")
+    username = input("Enter the username: ")
+    password = input("Enter the password: ")
+    otg = input("Enter the OTG: ")
+    registrar_domain = input("Enter the registrar domain: ")
+    outbound_proxy = input("Enter the outbound proxy: ")
+    registration_mode_config = {
+        "user_lineport": line_port,
+        "username": username,
+        "user_password": password,
+        "otg": otg,
+        "registrar_domain": registrar_domain,
+        "outbound_proxy": outbound_proxy,
+        "transport": "tls"
+    }
+    return registration_mode_config
 
 
 def validate_dialpeer(dial_peer_to_pbx):
@@ -20,9 +38,8 @@ def validate_dialpeer(dial_peer_to_pbx):
         exit()
 
 
-# read user input a value for "dial-peer to pbx". This value will be used to create the dial-peer
-# user may enter 0 for dial-peer to pbx and the script will create a dial-peer with a generated value
-# user may enter a value for dial-peer to pbx and the script will create a dial-peer with the value entered
+
+
 def get_dial_peer_to_pbx():
     # read user input for dial-peer to pbx
     # in the user input, inform that if they enter 0 then the script will generate a value for dial-peer to pbx
@@ -35,9 +52,6 @@ def get_dial_peer_to_pbx():
     return dial_peer_to_pbx
 
 
-# read user input a value for "dial-peer to webex calling". This value will be used to create the dial-peer
-# user may enter 0 for dial-peer to webex calling and the script will create a dial-peer with a generated value
-# user may enter a value for dial-peer to webex calling and the script will create a dial-peer with the value entered
 def get_dial_peer_to_webex_calling():
     dial_peer_to_webex_calling = input("Enter the dial-peer to pbx (0 for auto): ")
     # if user enters a value that is not an integer or within the range of 100-999 then prompt return an error message
@@ -47,15 +61,11 @@ def get_dial_peer_to_webex_calling():
     return dial_peer_to_webex_calling
 
 
-# read fqdn for the local gateway if certificate-based local gateway is selected
 def get_fqdn():
     fqdn = input("Enter the fqdn for the local gateway: ")
     return fqdn
 
 
-# read user input for registration-based vs certificate-based local gateway
-# user may enter "reg" for registration-based local gateway
-# user may enter "cert" for certificate-based local gateway
 def get_local_gateway_type():
     local_gateway_type = input("Enter the local gateway type (reg/cert): ")
     # if user does not enter "reg" or "cert" then prompt return an error message
@@ -66,28 +76,28 @@ def get_local_gateway_type():
 
 
 def read_user_input():
-    outbound_proxy = input("Enter the outbound proxy: ")
+
     #  local gateway type
     local_gateway_type = get_local_gateway_type()
-    # local gateway type is certificate-based then read fqdn
+    # method to switch between reg and cert
     if local_gateway_type == "cert":
         fqdn = get_fqdn()
     #  dial-peer to pbx
     dial_peer_to_pbx = get_dial_peer_to_pbx()
     #  dial-peer to webex calling
     dial_peer_to_webex_calling = get_dial_peer_to_webex_calling()
-    option = input("Do you want to enter the CUCM IP address? (yes/no): ")
+    option = input("Do you want to enter the PBX IP address? (yes/no): ")
     if option == "yes":
-        ccm_ip = input("Enter the CUCM IP address: ")
+        pbx_ip = input("Enter the PBX IP address: ")
         # sanitize the ip address entered and throw an error if the ip address is invalid
         try:
-            socket.inet_aton(ccm_ip)
+            socket.inet_aton(pbx_ip)
         except socket.error:
             print("Invalid IP address")
             exit()
-        lgw_template_with_pbx(outbound_proxy, ccm_ip)
+        lgw_template_with_pbx(pbx_ip)
     else:
-        lgw_template_without_pbx(outbound_proxy)
+        lgw_template_without_pbx()
 
 
 def main():
