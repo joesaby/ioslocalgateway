@@ -19,6 +19,7 @@ def validate_dialpeer(dial_peer_to_pbx):
         print("Invalid dial-peer to pbx. Please enter a value between 100-999")
         exit()
 
+
 # read user input a value for "dial-peer to pbx". This value will be used to create the dial-peer
 # user may enter 0 for dial-peer to pbx and the script will create a dial-peer with a generated value
 # user may enter a value for dial-peer to pbx and the script will create a dial-peer with the value entered
